@@ -8,7 +8,6 @@ import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
-
 import '../constants/constants.dart';
 
 class Home extends StatefulWidget {
@@ -40,12 +39,20 @@ class _HomeState extends State<Home> {
     super.dispose();
   }
 
-  Widget _textFieldWiget() {
+  Widget _textFieldWidget() {
     return Expanded(
       child: Container(
         decoration: BoxDecoration(
-            color: Colors.transparent.withOpacity(0.2),
-            borderRadius: BorderRadius.circular(10.0)),
+          color: Colors.white.withOpacity(0.3),
+          borderRadius: BorderRadius.circular(15.0),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
         child: TextField(
           controller: _searchController,
           onSubmitted: (provider) {
@@ -54,13 +61,13 @@ class _HomeState extends State<Home> {
                 .getSearchWeather(context, _searchController.text.trim());
             _searchController.clear();
           },
-          style: appTextStyle(),
+          style: appTextStyle().copyWith(color: Colors.white),
           decoration: InputDecoration(
-              hintText: 'Search',
-              hintStyle: appTextStyle(),
-              border: const OutlineInputBorder(
-                borderSide: BorderSide.none,
-              )),
+            hintText: 'Search for a city...',
+            hintStyle: appTextStyle().copyWith(color: Colors.white70),
+            border: InputBorder.none,
+            contentPadding: const EdgeInsets.symmetric(horizontal: 20.0),
+          ),
         ),
       ),
     );
@@ -75,13 +82,13 @@ class _HomeState extends State<Home> {
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                const Color(0Xff092a5f),
+                const Color(0Xff0a3d62),
                 value.weatherData == null
-                    ? const Color.fromARGB(255, 17, 57, 133)
-                    : const Color(0Xff124cb4)
+                    ? const Color.fromARGB(255, 45, 52, 71)
+                    : const Color(0Xff1e3799)
               ],
               begin: Alignment.topLeft,
-              end: Alignment.center,
+              end: Alignment.bottomRight,
             ),
           ),
           child: SafeArea(
@@ -91,45 +98,45 @@ class _HomeState extends State<Home> {
                 value.onRefresh(context);
               },
               header: _buildEasyRefreshClassicHeader(),
-              child: Stack(children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                  child: value.weatherData == null
-                      ? Center(
-                          child: Lottie.asset('assets/loading.json',
-                              height: 250.0),
-                        )
-                      : HomeWidget(
-                          textFieldWiget: _textFieldWiget(),
-                          weatherData: value.weatherData!,
-                          currentSky:
-                              value.weatherData!.list[0].weather[0].main,
-                          temp: kelvinToCelsius(value.weatherData!.list[0].main)
-                              .$1,
-                          maxTemp:
-                              kelvinToCelsius(value.weatherData!.list[0].main)
-                                  .$2,
-                          minTmp:
-                              kelvinToCelsius(value.weatherData!.list[0].main)
-                                  .$3,
-                          currentWeather: value.weatherData!.list[0],
-                          onLocationTap: () {
-                            value.getUserLocationAndWeather(context);
-                          },
-                        ),
-                ),
-                if (value.isGettingLocation) ...[
-                  BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0),
-                    child: Container(
-                      decoration:
-                          BoxDecoration(color: Colors.black.withOpacity(0.2)),
-                    ),
+              child: Stack(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                    child: value.weatherData == null
+                        ? Center(
+                            child: Lottie.asset(
+                              'assets/loading.json',
+                              height: 200.0,
+                            ),
+                          )
+                        : HomeWidget(
+                            textFieldWiget: _textFieldWidget(),
+                            weatherData: value.weatherData!,
+                            currentSky: value.weatherData!.list[0].weather[0].main,
+                            temp: kelvinToCelsius(value.weatherData!.list[0].main).$1,
+                            maxTemp: kelvinToCelsius(value.weatherData!.list[0].main).$2,
+                            minTmp: kelvinToCelsius(value.weatherData!.list[0].main).$3,
+                            currentWeather: value.weatherData!.list[0],
+                            onLocationTap: () {
+                              value.getUserLocationAndWeather(context);
+                            },
+                          ),
                   ),
-                  Center(
-                      child: Lottie.asset('assets/loading.json', height: 250)),
-                ]
-              ]),
+                  if (value.isGettingLocation) ...[
+                    BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.3),
+                        ),
+                      ),
+                    ),
+                    Center(
+                      child: Lottie.asset('assets/loading.json', height: 200),
+                    ),
+                  ],
+                ],
+              ),
             ),
           ),
         ),
@@ -139,14 +146,13 @@ class _HomeState extends State<Home> {
 
   ClassicHeader _buildEasyRefreshClassicHeader() {
     return ClassicHeader(
-        iconTheme: const IconThemeData(color: Colors.white),
-        dragText: 'Pull To Refresh',
-        readyText: 'Refreshing',
-        armedText: 'Release To Refresh',
-        messageStyle: appTextStyle(),
-        textStyle: appTextStyle(),
-        succeededIcon: const Icon(
-          Icons.done,
-        ));
+      iconTheme: const IconThemeData(color: Colors.white),
+      dragText: 'Pull To Refresh',
+      readyText: 'Refreshing...',
+      armedText: 'Release to Refresh',
+      messageStyle: appTextStyle().copyWith(color: Colors.white),
+      textStyle: appTextStyle().copyWith(color: Colors.white),
+      succeededIcon: const Icon(Icons.check, color: Colors.white),
+    );
   }
 }
